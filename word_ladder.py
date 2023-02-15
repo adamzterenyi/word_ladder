@@ -33,8 +33,12 @@ def word_ladder(start_word, end_word, dictionary_file='words5.dict'):
     the function returns `None`.
     '''
 
+    ladder = []
     stack = [start_word]
     queue = deque([stack])
+    if start_word == end_word:
+        ladder.append(start_word)
+        return ladder
     with open('words5.dict') as f:
         words = f.readlines()
         words = list(set([word.strip() for word in words]))
@@ -43,8 +47,15 @@ def word_ladder(start_word, end_word, dictionary_file='words5.dict'):
         for word in words:
             if _adjacent(stack[-1], word):
                 if word == end_word:
-                    word_ladder = stack.pop() + word
-                    return word_ladder
+                    '''
+                    if stack[-1] != start_word:
+                        ladder.append(start_word)
+                    '''
+                    ladder.insert(0, stack[0])
+                    for i in stack[1:]:
+                        ladder.insert(len(stack), i)
+                    ladder.append(word)
+                    return ladder
                 stack_copy = stack.copy()
                 stack_copy.append(word)
                 queue.append(stack_copy)
