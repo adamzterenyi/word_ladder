@@ -1,5 +1,7 @@
 #!/bin/python3
 
+from collections import deque
+
 
 def word_ladder(start_word, end_word, dictionary_file='words5.dict'):
     '''
@@ -16,18 +18,37 @@ def word_ladder(start_word, end_word, dictionary_file='words5.dict'):
     ```
     may give the output
     ```
-    ['stone', 'shone', 'phone', 'phony', 'peony', 'penny', 'benny', 'bonny', 'boney', 'money']
+    ['stone', 'shone', 'phone', 'phony', 'peony', 'penny', 'benny',
+    'bonny', 'boney', 'money']
     ```
     but the possible outputs are not unique,
     so you may also get the output
     ```
-    ['stone', 'shone', 'shote', 'shots', 'soots', 'hoots', 'hooty', 'hooey', 'honey', 'money']
+    ['stone', 'shone', 'shote', 'shots', 'soots', 'hoots', 'hooty',
+    'hooey', 'honey', 'money']
     ```
     (We cannot use doctests here because the outputs are not unique.)
 
     Whenever it is impossible to generate a word ladder between the two words,
     the function returns `None`.
     '''
+
+    stack = [start_word]
+    queue = deque([stack])
+    with open('words5.dict') as f:
+        words = f.readlines()
+        words = list(set([word.strip() for word in words]))
+    while queue:
+        stack = queue.popleft()
+        for word in words:
+            if _adjacent(stack[-1], word):
+                if word == end_word:
+                    word_ladder = stack.pop() + word
+                    return word_ladder
+                stack_copy = stack.copy()
+                stack_copy.append(word)
+                queue.append(stack_copy)
+                words.remove(word)
 
 
 def verify_word_ladder(ladder):
@@ -41,6 +62,13 @@ def verify_word_ladder(ladder):
     False
     '''
 
+    if ladder is None or len(ladder) == 0:
+        return False
+    for i in range(len(ladder) - 1):
+            if not _adjacent(ladder[i], ladder[i + 1]):
+                return False
+    return True
+
 
 def _adjacent(word1, word2):
     '''
@@ -52,3 +80,12 @@ def _adjacent(word1, word2):
     >>> _adjacent('stone','money')
     False
     '''
+
+    try:
+        count = 0
+        for i in range(0, 5):
+            if word1[i] != word2[i]:
+                count += 1
+        return count == 1
+    except IndexError:
+        return False
